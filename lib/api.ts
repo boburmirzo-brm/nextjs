@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react'
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000/api',
+  // baseUrl: 'http://localhost:3000/api',
+  baseUrl: 'https://nextjs-dusky-iota-92.vercel.app/api',
   prepareHeaders: (headers) => {
     const token = "fake__token"
     if (token) {
