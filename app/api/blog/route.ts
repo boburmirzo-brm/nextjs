@@ -1,6 +1,6 @@
 import connectMongoDB from "@/lib/mongodb";
 import { Blogs } from "@/models/blogSchema";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function GET() {
   await connectMongoDB();
@@ -11,7 +11,7 @@ export async function GET() {
   );
 }
 
-export async function POST(request: any) {
+export async function POST(request: NextRequest) {
   const { title, desc } = await request.json();
   await connectMongoDB();
   await Blogs.create({ title, desc });
