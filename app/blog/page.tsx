@@ -1,48 +1,54 @@
-"use client"
-import {useGetBlogsQuery, useCreateBlogMutation} from "@/lib/features/blog/blogSlice"
-import React, { useState } from "react";
+"use client";
+import CreateBlog from "@/components/CreateBlog";
+import Loading from "@/components/Loading";
+import {
+  useGetBlogsQuery,
+  useDeleteBlogMutation,
+} from "@/lib/features/blog/blogSlice";
+import Link from "next/link";
 
 interface BlogType {
-    _id: string;
-    title: string;
-    desc: string;
-}
-
-const initialState = {
-    title: "",
-    desc: ""
+  _id: string;
+  title: string;
+  desc: string;
 }
 
 export default function Blog() {
-    const {data, isLoading} = useGetBlogsQuery("Blog")
-    const [createBlog, {isLoading: createLoading}] = useCreateBlogMutation()
-    const [newBlog, setNewBlog] = useState(initialState)
-    const handleSubmit = (e:  React.FormEvent<HTMLFormElement>)=>{
-        e.preventDefault()
-        console.log(newBlog);
-        
-        createBlog(newBlog)
-            .then(res=> {
-                console.log(res)
-                setNewBlog(initialState)
-            })
-            .catch(err=> console.log(err))
-    }
-   
-    let blogs = data?.innerData?.map((el: BlogType) => <h2 key={el._id}>
-        <b>{el.title}</b> - 
-        <span>{el.desc}</span>
-    </h2>)
-    return (
-      <div>
-        <h2>Create blog</h2>
-        <form onSubmit={handleSubmit} action="">
-            <input value={newBlog.title} onChange={(e)=>setNewBlog(prev => ({...prev, title: e.target.value}))} type="text" placeholder="title" className="border-zinc-200 border" required />
-            <input value={newBlog.desc} onChange={(e)=>setNewBlog(prev => ({...prev, desc: e.target.value}))} type="text" placeholder="desc" className="border-zinc-200 border" required />
-            <button disabled={createLoading} className="bg-green-500 px-5">{createLoading? "Loading...": "Create blog"}</button>
-        </form>
-        <h2>All blogs</h2>       
-        {isLoading ? <h2>Loading...</h2> : blogs}
+  const { data, isLoading } = useGetBlogsQuery("Blog");
+  const [deleteBlogById, { isLoading: deleteLoading }] = useDeleteBlogMutation();
+
+  let blogs = data?.innerData?.map((el: BlogType) => (
+    <div
+      key={el._id}
+      className=" p-6 md:w-80 w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    >
+      <Link href={`/blog/${el._id}`}>
+        <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+          {el.title}
+        </h5>
+      </Link>
+      <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+        {el.desc}
+      </p>
+      <button
+        disabled={deleteLoading}
+        onClick={() => deleteBlogById(el._id)}
+        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      >
+        {
+          deleteLoading ? "Loading..." : "Delete"
+        }
+      </button>
+    </div>
+  ));
+  return (
+    <div className="bg-slate-900 min-h-screen ">
+      <div className="max-w-screen-xl mx-auto">
+        <CreateBlog/>
+        <div className="max-xl:px-5 flex gap-5 flex-wrap">
+          {isLoading ? <Loading/> : blogs}
+        </div>
       </div>
-    )
-  }
+    </div>
+  );
+}
